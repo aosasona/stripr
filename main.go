@@ -4,5 +4,5 @@ import "os"
 
 func main() {
 	s := Scanner{}
-	s.New(os.Args[1:]).Run()
+	s.New(os.Args).Run()
 }

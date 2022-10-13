@@ -8,8 +8,14 @@ import (
 type Scanner types.Scanner
 
 func (s *Scanner) New(args []string) *Scanner {
+
+	if len(args) < 2 {
+		utils.Terminate(&types.ErrNoCommand{})
+	}
+
 	s.Args = args
 	s.Path = args[1]
+
 	if utils.CheckDirExists(s.Path) {
 		s.DirType = types.DIRECTORY
 		return s
@@ -21,12 +27,11 @@ func (s *Scanner) New(args []string) *Scanner {
 func (s *Scanner) Run() {
 	commands := []string{"scan", "clean", "init"}
 	args := s.Args
-	if len(args) == 0 {
-		utils.Terminate(&types.ErrNoCommand{})
-	}
 
-	if !utils.Contains(commands, args[2]) {
-		utils.Terminate(&types.ErrInvalidCommand{Command: args[0]})
+	if len(args) > 2 {
+		if !utils.Contains(commands, args[2]) {
+			utils.Terminate(&types.ErrInvalidCommand{Command: args[0]})
+		}
 	}
 }
 
