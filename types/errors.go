@@ -2,26 +2,26 @@ package types
 
 import "fmt"
 
-type FatalRuntimeError struct{}
-
-type ErrFileNotFound struct {
-	Path string
-}
-
-type ErrDirNotFound struct {
-	Path string
-}
-
-type UnableToReadDir struct {
-	Path string
-}
-
-type ErrFileNotText struct {
-	Path string
-}
+type (
+	FatalRuntimeError struct{}
+	ErrNoCommand      struct{}
+	ErrInvalidCommand struct{ Command string }
+	ErrFileNotFound   struct{ Path string }
+	ErrDirNotFound    struct{ Path string }
+	UnableToReadDir   struct{ Path string }
+	ErrFileNotText    struct{ Path string }
+)
 
 func (e *FatalRuntimeError) Error() string {
-	return "fatal runtime error, terminating..."
+	return "fatal runtime error, exiting..."
+}
+
+func (e *ErrNoCommand) Error() string {
+	return "no command provided, exiting..."
+}
+
+func (e *ErrInvalidCommand) Error() string {
+	return fmt.Sprintf("invalid command: %s", e.Command)
 }
 
 func (e *ErrFileNotFound) Error() string {

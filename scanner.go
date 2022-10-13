@@ -1,20 +1,33 @@
-package stripr
+package main
 
 import (
 	"github.com/aosasona/stripr/types"
 	"github.com/aosasona/stripr/utils"
-	"os"
 )
 
 type Scanner types.Scanner
 
-func (s *Scanner) New() *Scanner {
+func (s *Scanner) New(args []string) *Scanner {
+	s.Args = args
+	s.Path = args[1]
 	if utils.CheckDirExists(s.Path) {
 		s.DirType = types.DIRECTORY
 		return s
 	}
 	s.DirType = types.FILE
 	return s
+}
+
+func (s *Scanner) Run() {
+	commands := []string{"scan", "clean", "init"}
+	args := s.Args
+	if len(args) == 0 {
+		utils.Terminate(&types.ErrNoCommand{})
+	}
+
+	if !utils.Contains(commands, args[2]) {
+		utils.Terminate(&types.ErrInvalidCommand{Command: args[0]})
+	}
 }
 
 func (s *Scanner) Scan() interface{} {
@@ -59,24 +72,6 @@ func (s *Scanner) CountDirFiles() (int, error) {
 	if !utils.CheckDirExists(s.Path) {
 		return 0, &types.ErrDirNotFound{Path: path}
 	}
-
-	count := 0
-
-	files, err := os.ReadDir(string(path))
-	if err != nil {
-		return 0, &types.UnableToReadDir{Path: path}
-	}
-
-	for _, file := range files {
-		if !file.IsDir() && file.Type().IsRegular() {
-			count++
-		}
-	}
-
+	count := len(utils.ReadDirectory(path))
 	return count, nil
-}
-
-func (s *Scanner) IsTextFile(path types.FilePath) bool {
-
-	return true
 }

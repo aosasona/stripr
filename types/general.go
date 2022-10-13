@@ -4,6 +4,7 @@ type Scanner struct {
 	DirType DirType
 	Path    string
 	Files   []FilePath
+	Args    []string
 }
 
 type (
