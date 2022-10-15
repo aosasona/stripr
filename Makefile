@@ -4,7 +4,7 @@ all:
 	@echo "make clean"
 
 build:
-	go build -o ./stripr .
+	go build -o stripr .
 	make move
 
 move:

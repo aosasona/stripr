@@ -1,8 +1,12 @@
 package main
 
 import (
+	"errors"
+	"fmt"
 	"github.com/aosasona/stripr/types"
 	"github.com/aosasona/stripr/utils"
+	"os"
+	"strings"
 )
 
 type Scanner types.Scanner
@@ -29,10 +33,40 @@ func (s *Scanner) Run() {
 	args := s.Args
 
 	if len(args) > 2 {
-		if !utils.Contains(commands, args[2]) {
+		keyword := args[2]
+		if !utils.Contains(commands, keyword) {
 			utils.Terminate(&types.ErrInvalidCommand{Command: args[0]})
 		}
+		switch keyword {
+		case "init":
+			err := s.Init()
+			if err != nil {
+				utils.Terminate(err)
+			}
+			fmt.Printf("Created `stripr.json` config file in %s", s.Path)
+			break
+		}
 	}
+}
+
+func (s *Scanner) Init() error {
+
+	if s.DirType == types.FILE {
+		return errors.New("cannot create config file in a file")
+	}
+
+	configContent := []byte(`{
+	"ignore": ["node_modules", "tests", "vendor", "dist", "build"],
+	"returnCount": true
+	}`)
+
+	path := strings.Trim(s.Path, "/") + "/stripr.json"
+	err := os.WriteFile(path, configContent, 0644)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *Scanner) Scan() interface{} {
