@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"os"
 
 	"github.com/aosasona/stripr/utils"
 )
@@ -56,7 +57,7 @@ func (s *Stripr) ShowUsage() {
 	usage := `Usage: stripr [options] [command]
 		
 	Options:
-		-target string
+		-target=string
 				The directory or file to read (default ".")
 		-show-stats		
 				Show the number of files and lines that will be affected
@@ -83,17 +84,23 @@ func (s *Stripr) CreateConfig() {
 }
 
 func (s *Stripr) ScanTarget() {
-	stats, err := s.Scanner.Scan()
+	stats, ignoredCount, err := s.Scanner.Scan()
 	if err != nil {
 		utils.Terminate(errors.New(fmt.Sprintf("Error scanning target: %s", err)))
 	}
 
 	var filesWithComments []map[string]interface{}
 	for _, file := range stats {
-		if file["hasComments"].(bool) {
+		if file["HasComments"].(bool) {
 			filesWithComments = append(filesWithComments, file)
 		}
 	}
 
-	fmt.Printf("Found %d files with comments\n", len(filesWithComments))
+	fmt.Printf("[scan] %d file(s) scanned, %d file(s) ignored\n", len(stats), ignoredCount)
+	utils.PrintStats(filesWithComments)
+	os.Exit(0)
+}
+
+func (s *Stripr) CleanTarget() {
+	// TODO
 }

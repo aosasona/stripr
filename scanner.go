@@ -59,30 +59,30 @@ func (s *Scanner) Init() error {
 	return nil
 }
 
-func (s *Scanner) Scan() ([]map[string]interface{}, error) {
+func (s *Scanner) Scan() ([]map[string]interface{}, int, error) {
 	switch s.DirType {
 	case types.FILE:
-		file, err := s.ScanSingle()
+		file, _, err := s.ScanSingle()
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
-		return []map[string]interface{}{utils.StructToMap(file)}, nil
+		return []map[string]interface{}{utils.StructToMap(file)}, 0, nil
 	case types.DIRECTORY:
-		files, err := s.ScanDir()
+		files, ignoredCount, err := s.ScanDir()
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
-		return utils.StructsToMaps(files), nil
+		return utils.StructsToMaps(files), ignoredCount, nil
 	default:
 		utils.Terminate(&types.FatalRuntimeError{})
 		break
 	}
-	return nil, nil
+	return nil, 0, nil
 }
 
-func (s *Scanner) ScanSingle() (types.ScanResult, error) {
+func (s *Scanner) ScanSingle() (types.ScanResult, int, error) {
 	if !utils.CheckFileExists(s.Path) {
-		return types.ScanResult{}, &types.ErrFileNotFound{Path: string(s.Path)}
+		return types.ScanResult{}, 0, &types.ErrFileNotFound{Path: string(s.Path)}
 	}
 
 	comments := s.GetComments(s.Path)
@@ -95,21 +95,23 @@ func (s *Scanner) ScanSingle() (types.ScanResult, error) {
 		HasComments: hasComments,
 	}
 
-	return scanResult, nil
+	return scanResult, 0, nil
 }
 
-func (s *Scanner) ScanDir() ([]types.ScanResult, error) {
+func (s *Scanner) ScanDir() ([]types.ScanResult, int, error) {
 	if !utils.CheckDirExists(s.Path) {
-		return nil, &types.ErrDirNotFound{Path: s.Path}
+		return nil, 0, &types.ErrDirNotFound{Path: s.Path}
 	}
 
 	files := utils.ReadDirectory(s.Path)
 	var scanResults []types.ScanResult
+	ignoredCount := 0
 
 	for _, file := range files {
 
 		ignored := s.CheckIfFileIgnored(file.Name())
 		if ignored {
+			ignoredCount++
 			continue
 		}
 
@@ -125,7 +127,7 @@ func (s *Scanner) ScanDir() ([]types.ScanResult, error) {
 		scanResults = append(scanResults, scanResult)
 	}
 
-	return scanResults, nil
+	return scanResults, ignoredCount, nil
 }
 
 func (s *Scanner) CountDirFiles() (int, error) {

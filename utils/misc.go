@@ -2,6 +2,7 @@ package utils
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/aosasona/stripr/types"
 )
@@ -31,4 +32,15 @@ func StructsToMaps(s []types.ScanResult) []map[string]interface{} {
 		maps = append(maps, StructToMap(v))
 	}
 	return maps
+}
+
+func PrintStats(stats []map[string]interface{}) {
+	if len(stats) > 0 {
+		fmt.Print("----------------------------------------\n Stats - only file(s) with comment(s) \n----------------------------------------\n")
+		for _, file := range stats {
+			fmt.Printf("- %s (%d lines)", file["Name"], len(file["Lines"].([]interface{})))
+		}
+	} else {
+		fmt.Println("[scan] No files contain comments")
+	}
 }
