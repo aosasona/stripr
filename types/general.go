@@ -3,7 +3,7 @@ package types
 type Scanner struct {
 	DirType DirType
 	Path    string
-	Args    []string
+	Config  map[string]interface{}
 }
 
 type (
@@ -12,11 +12,10 @@ type (
 )
 
 type ScanResult struct {
-	Name       FileName
-	Path       FilePath
-	Lines      []int
-	LineCount  int
-	HasComment bool
+	Name        string
+	Path        string
+	Lines       [][]int
+	HasComments bool
 }
 
 type DirType int

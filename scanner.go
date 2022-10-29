@@ -2,51 +2,40 @@ package main
 
 import (
 	"errors"
-	"fmt"
+	"log"
+	"os"
+	"regexp"
+	"strings"
+
 	"github.com/aosasona/stripr/types"
 	"github.com/aosasona/stripr/utils"
-	"os"
-	"strings"
 )
 
 type Scanner types.Scanner
 
-func (s *Scanner) New(args []string) *Scanner {
+const (
+	CommentRegex = `(/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/)|(//.*)`
+)
 
-	if len(args) < 2 {
-		utils.Terminate(&types.ErrNoCommand{})
-	}
+func (s *Scanner) New(dirPath *string) *Scanner {
 
-	s.Args = args
-	s.Path = args[1]
+	s.Path = *dirPath
 
 	if utils.CheckDirExists(s.Path) {
 		s.DirType = types.DIRECTORY
+	} else if utils.CheckFileExists(s.Path) {
+		s.DirType = types.FILE
 		return s
+	} else {
+		log.Fatalf("Path %s does not exist", s.Path)
 	}
-	s.DirType = types.FILE
+
+	err := s.LoadConfig()
+	if err != nil {
+		log.Fatalf("Error loading config: %s", err)
+	}
+
 	return s
-}
-
-func (s *Scanner) Run() {
-	commands := []string{"scan", "clean", "init"}
-	args := s.Args
-
-	if len(args) > 2 {
-		keyword := args[2]
-		if !utils.Contains(commands, keyword) {
-			utils.Terminate(&types.ErrInvalidCommand{Command: args[0]})
-		}
-		switch keyword {
-		case "init":
-			err := s.Init()
-			if err != nil {
-				utils.Terminate(err)
-			}
-			fmt.Printf("Created `stripr.json` config file in %s", s.Path)
-			break
-		}
-	}
 }
 
 func (s *Scanner) Init() error {
@@ -57,8 +46,9 @@ func (s *Scanner) Init() error {
 
 	configContent := []byte(`{
 	"ignore": ["node_modules", "tests", "vendor", "dist", "build"],
-	"returnCount": true
-	}`)
+	"showStats": true,
+	"confirmStrip": true
+}`)
 
 	path := strings.Trim(s.Path, "/") + "/stripr.json"
 	err := os.WriteFile(path, configContent, 0644)
@@ -69,25 +59,25 @@ func (s *Scanner) Init() error {
 	return nil
 }
 
-func (s *Scanner) Scan() interface{} {
+func (s *Scanner) Scan() ([]map[string]interface{}, error) {
 	switch s.DirType {
 	case types.FILE:
 		file, err := s.ScanSingle()
 		if err != nil {
-			utils.Terminate(&types.FatalRuntimeError{})
+			return nil, err
 		}
-		return &file
+		return []map[string]interface{}{utils.StructToMap(file)}, nil
 	case types.DIRECTORY:
 		files, err := s.ScanDir()
 		if err != nil {
-			utils.Terminate(&types.FatalRuntimeError{})
+			return nil, err
 		}
-		return &files
+		return utils.StructsToMaps(files), nil
 	default:
 		utils.Terminate(&types.FatalRuntimeError{})
 		break
 	}
-	return nil
+	return nil, nil
 }
 
 func (s *Scanner) ScanSingle() (types.ScanResult, error) {
@@ -95,7 +85,17 @@ func (s *Scanner) ScanSingle() (types.ScanResult, error) {
 		return types.ScanResult{}, &types.ErrFileNotFound{Path: string(s.Path)}
 	}
 
-	return types.ScanResult{}, nil
+	comments := s.GetComments(s.Path)
+	hasComments := len(comments) > 0
+
+	scanResult := types.ScanResult{
+		Name:        s.Path,
+		Path:        s.Path,
+		Lines:       comments,
+		HasComments: hasComments,
+	}
+
+	return scanResult, nil
 }
 
 func (s *Scanner) ScanDir() ([]types.ScanResult, error) {
@@ -103,7 +103,29 @@ func (s *Scanner) ScanDir() ([]types.ScanResult, error) {
 		return nil, &types.ErrDirNotFound{Path: s.Path}
 	}
 
-	return []types.ScanResult{}, nil
+	files := utils.ReadDirectory(s.Path)
+	var scanResults []types.ScanResult
+
+	for _, file := range files {
+
+		ignored := s.CheckIfFileIgnored(file.Name())
+		if ignored {
+			continue
+		}
+
+		comments := s.GetComments(s.Path + "/" + file.Name())
+		hasComments := len(comments) > 0
+
+		scanResult := types.ScanResult{
+			Name:        file.Name(),
+			Path:        s.Path + "/" + file.Name(),
+			Lines:       comments,
+			HasComments: hasComments,
+		}
+		scanResults = append(scanResults, scanResult)
+	}
+
+	return scanResults, nil
 }
 
 func (s *Scanner) CountDirFiles() (int, error) {
@@ -113,4 +135,26 @@ func (s *Scanner) CountDirFiles() (int, error) {
 	}
 	count := len(utils.ReadDirectory(path))
 	return count, nil
+}
+
+func (s *Scanner) CheckIfFileIgnored(path string) bool {
+	for _, ignore := range s.Config["ignore"].([]interface{}) {
+		if strings.Contains(path, ignore.(string)) {
+			return true
+		}
+	}
+	return false
+}
+
+func (s *Scanner) LoadConfig() error {
+	config := utils.ReadConfig(s.Path)
+	s.Config = config
+	return nil
+}
+
+func (s *Scanner) GetComments(file string) [][]int {
+	commentRegex := regexp.MustCompile(CommentRegex)
+	fileContent := utils.ReadFileAsString(file)
+	matches := commentRegex.FindAllStringIndex(fileContent, -1)
+	return matches
 }

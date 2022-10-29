@@ -10,6 +10,7 @@ type (
 	ErrDirNotFound    struct{ Path string }
 	UnableToReadDir   struct{ Path string }
 	ErrFileNotText    struct{ Path string }
+	ErrFileIgnored    struct{ Path string }
 )
 
 func (e *FatalRuntimeError) Error() string {
@@ -38,4 +39,8 @@ func (e *UnableToReadDir) Error() string {
 
 func (e *ErrFileNotText) Error() string {
 	return fmt.Sprintf("file is not a text file: %s", e.Path)
+}
+
+func (e *ErrFileIgnored) Error() string {
+	return fmt.Sprintf("file ignored: %s", e.Path)
 }

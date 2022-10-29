@@ -13,3 +13,10 @@ move:
 
 clean:
 	rm -rf ./bin
+
+# for development
+scan-single:
+	go run . -target=./example/index.js scan
+
+scan:
+	go run . -target=./example scan
