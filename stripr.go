@@ -74,7 +74,7 @@ func (s *Stripr) ShowUsage() {
 		scan		
 				Scan the directory for comments
 		strip		
-				Remove comments from the directory (-y to prevent asking for confirmation; use with caution)
+				Remove comments from the directory (-skip-check to prevent asking for confirmation; use with caution)
 		help
 				Show this help message
 `
