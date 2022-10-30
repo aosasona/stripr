@@ -63,7 +63,7 @@ func (s *Stripr) ShowUsage() {
 		
 	Options:
 		-target=string
-				The directory or file to read (default ".")
+				The directory or file to read (default "." - current directory)
 		-show-stats=true|false		
 				Show the number of files and lines that will be affected
 		-skip-check=true|false

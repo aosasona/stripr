@@ -27,3 +27,16 @@ func SortScanResults(results []types.ScanResult) []types.ScanResult {
 	}
 	return sorted
 }
+
+func RemoveDuplicates(elements []interface{}) []interface{} {
+	encountered := map[string]bool{}
+	var result []interface{}
+
+	for v := range elements {
+		if !encountered[elements[v].(string)] {
+			encountered[elements[v].(string)] = true
+			result = append(result, elements[v])
+		}
+	}
+	return result
+}

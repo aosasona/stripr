@@ -44,6 +44,7 @@ build-all:
 	make build-mac
 	make build-linux
 	make build-windows
+	zip -r ./assets/stripr-multiplatform.zip build
 
 platform := $(shell uname -s)
 arch := $(shell uname -m)
@@ -83,9 +84,13 @@ move:
 
 clean:
 	@echo ">> Cleaning up"
-	rm -rf ./bin ./build ./release ./stripr ./stripr.exe
+	rm -rf ./bin ./build ./release ./stripr ./stripr.exe ./assets/stripr-multiplatform.zip
 
-
+install-mac:
+	make build-release
+	@test -d ~/.stripr/bin || mkdir -p ~/.stripr/bin
+	mv ./release/stripr ~/.stripr/bin/stripr
+	@echo ">> Moved stripr to ~/.stripr/bin/stripr"
 
 
 # for development

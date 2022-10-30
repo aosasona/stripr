@@ -125,6 +125,10 @@ func (s *Scanner) ScanDir() ([]types.ScanResult, int, error) {
 			continue
 		}
 
+		if file.IsDir() {
+			continue
+		}
+
 		comments := s.GetComments(s.Path + "/" + file.Name())
 
 		scanResult := types.ScanResult{
@@ -170,11 +174,21 @@ func (s *Scanner) CountDirFiles() (int, error) {
 }
 
 func (s *Scanner) CheckIfFileIgnored(path string) bool {
+	var customConfig []interface{}
 	if s.Config != nil {
-		for _, ignore := range s.Config["ignore"].([]interface{}) {
-			if strings.Contains(path, ignore.(string)) {
-				return true
-			}
+		customConfig = s.Config["ignore"].([]interface{})
+	}
+	ignoredPaths := append(
+		[]interface{}{".git", ".DS_Store", ".idea", ".vscode", "stripr.json", "node_modules", "tests", "vendor", "yarn.lock", "package-lock.json"},
+		customConfig...,
+	)
+
+	// remove duplicates
+	ignoredPaths = utils.RemoveDuplicates(ignoredPaths)
+
+	for _, ignore := range ignoredPaths {
+		if strings.Contains(path, ignore.(string)) {
+			return true
 		}
 	}
 	return false
