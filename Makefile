@@ -94,3 +94,9 @@ scan-single:
 
 scan:
 	go run . -target=./example scan
+
+strip-single:
+	go run . -target=./example/index.js strip
+
+strip:
+	go run . -target=./example strip

@@ -11,6 +11,8 @@ type (
 	UnableToReadDir   struct{ Path string }
 	ErrFileNotText    struct{ Path string }
 	ErrFileIgnored    struct{ Path string }
+	ErrReadingTarget  struct{ Path string }
+	ErrInvalidInput   struct{ Input string }
 )
 
 func (e *FatalRuntimeError) Error() string {
@@ -43,4 +45,12 @@ func (e *ErrFileNotText) Error() string {
 
 func (e *ErrFileIgnored) Error() string {
 	return fmt.Sprintf("file ignored: %s", e.Path)
+}
+
+func (e *ErrReadingTarget) Error() string {
+	return fmt.Sprintf("unable to read target: %s", e.Path)
+}
+
+func (e *ErrInvalidInput) Error() string {
+	return fmt.Sprintf("invalid input: %s", e.Input)
 }

@@ -7,13 +7,14 @@ import (
 func main() {
 	targetPath := flag.String("target", ".", "The directory or file to read")
 	showStats := flag.Bool("show-stats", false, "Show the number of files and lines that will be affected")
+	skipCheck := flag.Bool("skip-check", false, "Skip the confirmation prompt before stripping comments")
 
 	flag.Parse()
 
-	s := CreateStriprInstance(StriprOpts{
-		Target:    targetPath,
+	stripr := CreateStriprInstance(targetPath, Stripr{
 		ShowStats: *showStats,
+		SkipCheck: *skipCheck,
 		Args:      flag.Args(),
 	})
-	s.Run()
+	stripr.Run()
 }

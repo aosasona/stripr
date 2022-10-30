@@ -40,8 +40,8 @@ func TestReadConfig(t *testing.T) {
 				"ignore": []interface{}{
 					"node_modules", "tests", "vendor", "dist", "build",
 				},
-				"showStats":    true,
-				"confirmStrip": true,
+				"showStats": true,
+				"skipCheck": true,
 			}},
 	}
 	for _, tt := range tests {
