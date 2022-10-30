@@ -1,8 +1,13 @@
 # Stripr CLI
+![build status](https://github.com/aosasona/stripr/actions/workflows/main.yml/badge.svg)
 
 ![stripr](./assets/stripr.png)
 
-Stripr can find those annoying little debug comments you left in your code and remove them (because why not?), it currently only supports C-style comments (/* */ and //). Currently it is only limited to flat directories (no subdirectories).
+Stripr can find and remove those nasty (debug) comments you left in your code, because why not?
+
+### Current Limitations
+- Only supports C-style comments
+- Only supports flat directories (no subdirectories)
 
 ## Installation
 
@@ -20,7 +25,7 @@ OR
 make build-auto
 ```
 
-The `build-release` will build the binary for your current OS and architecture and place it in the `release` directory and `build-auto` will do the same but place it in the build directory with a sub-folder named after your OS and architecture. By default, the `build` folder is ignored by git but you can build for all platforms by running the following command:
+The `build-release` will build the binary for your current OS and architecture and place it in the `release` directory and `build-auto` will do the same but place it in the build directory with a sub-folder named after your OS and architecture. By default, the `build` folder is set to ignored by git for this project but you can build for **ALL** platforms locally by running the following command:
 
 ```bash
 make build-all
@@ -39,7 +44,7 @@ stripr [options] [command]
 Example:
 
 ```bash
-stripr -target=./example -skip-check=true -show-stats=true strip
+stripr -target=./example -skip-check -show-stats strip
 ```
 
 ## Options
@@ -66,9 +71,12 @@ stripr -target=./example -skip-check=true -show-stats=true strip
 
 
 - `strip`		
-*Remove comments from the directory (-y to prevent asking for confirmation; use with caution)*
+*Remove comments from the directory (-skip-check to prevent asking for confirmation; use with caution)*
 `help`
 *Show the help message*
 
 ## Contributing
-You can contribute to this project by opening an issue or a pull request, I will try to respond as soon as possible. This was a fun little project to work on to learn Golang and I hope you find it useful.
+You can contribute to this project by opening an issue or a pull request, I will try to respond as soon as possible. This was a fun little project to work on to learn Golang and I hope you find it useful at some point.
+
+## TODO
+- [ ] Add more tests to increase coverage (we don't want to break anything now, do we?) 

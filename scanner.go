@@ -183,7 +183,6 @@ func (s *Scanner) CheckIfFileIgnored(path string) bool {
 		customConfig...,
 	)
 
-	// remove duplicates
 	ignoredPaths = utils.RemoveDuplicates(ignoredPaths)
 
 	for _, ignore := range ignoredPaths {
