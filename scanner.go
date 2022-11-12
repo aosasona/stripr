@@ -1,8 +1,7 @@
-package main
+package stripr
 
 import (
-	"errors"
-	"log"
+	"fmt"
 	"os"
 	"regexp"
 	"strings"
@@ -17,7 +16,7 @@ const (
 	CommentRegex = `(/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/)|(//.*)`
 )
 
-func (s *Scanner) New(dirPath *string) *Scanner {
+func (s *Scanner) New(dirPath *string) (*Scanner, error) {
 
 	s.Path = *dirPath
 
@@ -25,23 +24,23 @@ func (s *Scanner) New(dirPath *string) *Scanner {
 		s.DirType = types.DIRECTORY
 	} else if utils.CheckFileExists(s.Path) {
 		s.DirType = types.FILE
-		return s
+		return s, nil
 	} else {
-		log.Fatalf("Path %s does not exist", s.Path)
+		return nil, &types.CustomError{Message: fmt.Sprintf("Path %s does not exist", s.Path)}
 	}
 
 	err := s.LoadConfig()
 	if err != nil {
-		log.Fatalf("Error loading config: %s", err)
+		return nil, err
 	}
 
-	return s
+	return s, nil
 }
 
 func (s *Scanner) Init() error {
 
 	if s.DirType == types.FILE {
-		return errors.New("cannot create config file in a file")
+		return &types.CustomError{Message: fmt.Sprintf("Path %s is a file, not a directory", s.Path)}
 	}
 
 	configContent := []byte(`{
@@ -53,7 +52,7 @@ func (s *Scanner) Init() error {
 	path := strings.Trim(s.Path, "/") + "/stripr.json"
 	err := os.WriteFile(path, configContent, 0644)
 	if err != nil {
-		return err
+		return &types.CustomError{Message: fmt.Sprintf("Could not create config file at %s", path)}
 	}
 
 	return nil
@@ -82,18 +81,20 @@ func (s *Scanner) Scan() ([]types.ScanResult, int, error) {
 		scanResults = files
 		break
 	default:
-		utils.Terminate(&types.FatalRuntimeError{})
-		break
+		return []types.ScanResult{}, 0, &types.CustomError{Message: "Invalid directory type"}
 	}
 	return scanResults, ignoredCount, nil
 }
 
 func (s *Scanner) ScanSingle() (types.ScanResult, int, error) {
 	if !utils.CheckFileExists(s.Path) {
-		return types.ScanResult{}, 0, &types.ErrFileNotFound{Path: string(s.Path)}
+		return types.ScanResult{}, 0, &types.CustomError{Message: fmt.Sprintf("File %s does not exist", s.Path)}
 	}
 
-	comments := s.GetComments(s.Path)
+	comments, err := s.GetComments(s.Path)
+	if err != nil {
+		return types.ScanResult{}, 0, err
+	}
 
 	splitName := strings.Split(s.Path, "/")
 	fileName := splitName[len(splitName)-1]
@@ -110,10 +111,15 @@ func (s *Scanner) ScanSingle() (types.ScanResult, int, error) {
 
 func (s *Scanner) ScanDir() ([]types.ScanResult, int, error) {
 	if !utils.CheckDirExists(s.Path) {
-		return nil, 0, &types.ErrDirNotFound{Path: s.Path}
+		return nil, 0, &types.CustomError{Message: fmt.Sprintf("Path %s does not exist", s.Path)}
 	}
 
-	files := utils.ReadDirectory(s.Path)
+	files, err := utils.ReadDirectory(s.Path)
+
+	if err != nil {
+		return nil, 0, err
+	}
+
 	var scanResults []types.ScanResult
 	ignoredCount := 0
 
@@ -129,7 +135,11 @@ func (s *Scanner) ScanDir() ([]types.ScanResult, int, error) {
 			continue
 		}
 
-		comments := s.GetComments(s.Path + "/" + file.Name())
+		comments, err := s.GetComments(s.Path + "/" + file.Name())
+
+		if err != nil {
+			return nil, 0, err
+		}
 
 		scanResult := types.ScanResult{
 			Name:        file.Name(),
@@ -151,12 +161,15 @@ func (s *Scanner) StripComments(name string) error {
 		filePath = s.Path + "/" + name
 	}
 	if !utils.CheckFileExists(filePath) {
-		return &types.ErrFileNotFound{Path: filePath}
+		return &types.CustomError{Message: fmt.Sprintf("File %s does not exist", filePath)}
 	}
 
-	initialFileContent := utils.ReadFileAsString(filePath)
+	initialFileContent, err := utils.ReadFileAsString(filePath)
+	if err != nil {
+		return err
+	}
 	fileContent := regexp.MustCompile(CommentRegex).ReplaceAllString(initialFileContent, "")
-	err := os.WriteFile(filePath, []byte(fileContent), 0644)
+	err = os.WriteFile(filePath, []byte(fileContent), 0644)
 	if err != nil {
 		return err
 	}
@@ -167,9 +180,13 @@ func (s *Scanner) StripComments(name string) error {
 func (s *Scanner) CountDirFiles() (int, error) {
 	path := s.Path
 	if !utils.CheckDirExists(s.Path) {
-		return 0, &types.ErrDirNotFound{Path: path}
+		return 0, &types.CustomError{Message: fmt.Sprintf("Path %s does not exist", path)}
 	}
-	count := len(utils.ReadDirectory(path))
+	files, err := utils.ReadDirectory(path)
+	if err != nil {
+		return 0, err
+	}
+	count := len(files)
 	return count, nil
 }
 
@@ -194,14 +211,20 @@ func (s *Scanner) CheckIfFileIgnored(path string) bool {
 }
 
 func (s *Scanner) LoadConfig() error {
-	config := utils.ReadConfig(s.Path)
+	config, err := utils.ReadConfig(s.Path)
+	if err != nil {
+		return err
+	}
 	s.Config = config
 	return nil
 }
 
-func (s *Scanner) GetComments(file string) [][]int {
+func (s *Scanner) GetComments(file string) ([][]int, error) {
 	commentRegex := regexp.MustCompile(CommentRegex)
-	fileContent := utils.ReadFileAsString(file)
+	fileContent, err := utils.ReadFileAsString(file)
+	if err != nil {
+		return nil, err
+	}
 	matches := commentRegex.FindAllStringIndex(fileContent, -1)
-	return matches
+	return matches, nil
 }

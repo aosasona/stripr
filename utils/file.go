@@ -1,6 +1,10 @@
 package utils
 
-import "os"
+import (
+	"os"
+
+	"github.com/aosasona/stripr/types"
+)
 
 func CheckFileExists(path string) bool {
 	if fileExists, err := os.Stat(path); err != nil || fileExists.IsDir() {
@@ -16,18 +20,18 @@ func CheckDirExists(path string) bool {
 	return true
 }
 
-func ReadFileAsString(path string) string {
+func ReadFileAsString(path string) (string, error) {
 	file, err := os.ReadFile(path)
 	if err != nil {
-		Terminate(err)
+		return "", &types.CustomError{Message: "Unable to read file"}
 	}
-	return string(file)
+	return string(file), nil
 }
 
-func ReadDirectory(path string) []os.DirEntry {
+func ReadDirectory(path string) ([]os.DirEntry, error) {
 	files, err := os.ReadDir(path)
 	if err != nil {
-		Terminate(err)
+		return nil, &types.CustomError{Message: "Unable to read directory"}
 	}
-	return files
+	return files, nil
 }

@@ -9,12 +9,12 @@ func TestCheckConfigExists(t *testing.T) {
 	tests := []struct {
 		name  string
 		want  string
-		want1 bool
+		want1 interface{}
 	}{
 		{
 			"check if config file exists",
 			"../example/stripr.json",
-			true,
+			nil,
 		},
 	}
 	for _, tt := range tests {
@@ -46,7 +46,7 @@ func TestReadConfig(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := ReadConfig("../example"); !reflect.DeepEqual(got, tt.want) {
+			if got, _ := ReadConfig("../example"); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("ReadConfig() = %v, want %v", got, tt.want)
 			}
 		})

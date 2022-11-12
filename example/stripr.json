@@ -1,5 +1,5 @@
 {
-	"ignore": ["node_modules", "tests", "vendor", "dist", "build"],
+	"ignore": ["node_modules", "tests", "vendor", "dist", "build", "read.js"],
 	"showStats": true,
 	"skipCheck": true
 }

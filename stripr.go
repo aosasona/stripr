@@ -1,9 +1,7 @@
-package main
+package stripr
 
 import (
-	"errors"
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/aosasona/stripr/types"
@@ -18,44 +16,52 @@ type Stripr struct {
 	Scanner   *Scanner
 }
 
-func CreateStriprInstance(target *string, opts Stripr) *Stripr {
+func CreateCMD(target *string, opts Stripr) (*Stripr, error) {
 	scanner := Scanner{}
-	scanner.New(target)
+	_, err := scanner.New(target)
+	if err != nil {
+		return nil, err
+	}
 	return &Stripr{
 		Target:    *target,
 		ShowStats: opts.ShowStats,
 		SkipCheck: opts.SkipCheck,
 		Scanner:   &scanner,
 		Args:      opts.Args,
-	}
+	}, nil
 }
 
-func (s *Stripr) Run() *Stripr {
+func (s *Stripr) Run() (*Stripr, error) {
 	if len(s.Args) < 1 {
 		s.ShowUsage()
-		return s
+		return s, nil
 	}
 
 	mainCmd := s.Args[0]
+	var err error
 
 	switch mainCmd {
 	case "init":
-		s.CreateConfig()
+		err = s.CreateConfig()
 		break
 	case "scan":
-		s.ScanTarget()
+		err = s.ScanTarget()
 		break
 	case "strip":
-		s.CleanTarget()
+		err = s.CleanTarget()
 		break
 	case "help":
 		s.ShowUsage()
 		break
 	default:
-		utils.Terminate(&types.ErrInvalidCommand{Command: mainCmd})
+		return s, &types.CustomError{Message: fmt.Sprintf("Unknown command: %s", mainCmd)}
 	}
 
-	return s
+	if err != nil {
+		return s, err
+	}
+
+	return s, nil
 }
 
 func (s *Stripr) ShowUsage() {
@@ -77,36 +83,39 @@ func (s *Stripr) ShowUsage() {
 				Remove comments from the directory (-skip-check to prevent asking for confirmation; use with caution)
 		help
 				Show this help message
+
+	You can optionally using a config file to set some options on a per-project basis.
 `
 	println(usage)
 }
 
-func (s *Stripr) CreateConfig() {
+func (s *Stripr) CreateConfig() error {
 	err := s.Scanner.Init()
 	if err != nil {
-		utils.Terminate(errors.New(fmt.Sprintf("Error creating config file: %s", err)))
+		return err
 	}
 
 	fmt.Printf("Config file created at %s/stripr.json", s.Target)
+	return nil
 }
 
-func (s *Stripr) ScanTarget() {
+func (s *Stripr) ScanTarget() error {
 	stats, ignoredCount, err := s.Scanner.Scan()
 	if err != nil {
-		utils.Terminate(&types.ErrReadingTarget{Path: s.Target})
+		return err
 	}
 
 	filesWithComments := utils.SortScanResults(stats)
 
 	fmt.Printf("[scan] %d file(s) scanned, %d file(s) ignored\n", len(stats), ignoredCount)
 	utils.PrintStats(filesWithComments)
-	os.Exit(0)
+	return nil
 }
 
-func (s *Stripr) CleanTarget() {
+func (s *Stripr) CleanTarget() error {
 	stats, ignoredCount, err := s.Scanner.Scan()
 	if err != nil {
-		utils.Terminate(&types.ErrReadingTarget{Path: s.Target})
+		return err
 	}
 
 	filesWithComments := utils.SortScanResults(stats)
@@ -114,7 +123,7 @@ func (s *Stripr) CleanTarget() {
 
 	if len(filesWithComments) == 0 {
 		fmt.Println("[scan] No files contain comments")
-		os.Exit(0)
+		return nil
 	}
 
 	configExists := s.Scanner.Config != nil
@@ -137,7 +146,7 @@ func (s *Stripr) CleanTarget() {
 
 		_, err := fmt.Scanln(&input)
 		if err != nil {
-			utils.Terminate(&types.ErrInvalidInput{Input: input})
+			return &types.CustomError{Message: fmt.Sprintf("Error reading input: %s", err)}
 		}
 	}
 
@@ -145,15 +154,14 @@ func (s *Stripr) CleanTarget() {
 		for _, file := range filesWithComments {
 			err := s.Scanner.StripComments(file.Name)
 			if err != nil {
-				utils.Terminate(&types.FatalRuntimeError{})
+				return err
 			}
 		}
 		fmt.Println("[clean] Done! 🎉")
-		os.Exit(0)
 	} else if strings.ToLower(input) == "n" {
-		utils.Terminate(errors.New("stripping aborted"))
+		return &types.CustomError{Message: "Aborted"}
 	} else {
-		utils.Terminate(&types.ErrInvalidInput{Input: input})
+		return &types.CustomError{Message: "Invalid input"}
 	}
-
+	return nil
 }
