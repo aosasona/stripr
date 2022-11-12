@@ -38,7 +38,7 @@ func TestReadConfig(t *testing.T) {
 		{"attempt to read config file",
 			map[string]interface{}{
 				"ignore": []interface{}{
-					"node_modules", "tests", "vendor", "dist", "build",
+					"node_modules", "tests", "vendor", "dist", "build", "read.js",
 				},
 				"showStats": true,
 				"skipCheck": true,

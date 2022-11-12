@@ -1,4 +1,4 @@
-package stripr
+package main
 
 import (
 	"fmt"

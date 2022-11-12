@@ -1,4 +1,4 @@
-package stripr
+package main
 
 import (
 	"flag"
@@ -10,22 +10,20 @@ import (
 )
 
 func main() {
-
-	var err error
-
 	targetPath := flag.String("target", ".", "The directory or file to read")
 	showStats := flag.Bool("show-stats", false, "Show the number of files and lines that will be affected")
 	skipCheck := flag.Bool("skip-check", false, "Skip the confirmation prompt before stripping comments")
 
 	flag.Parse()
 
-	defer os.Exit(0)
+	var err error
 
-	stripr, err := CreateCMD(targetPath, Stripr{
+	stripr, err := CreateStriprInstance(targetPath, Stripr{
 		ShowStats: *showStats,
 		SkipCheck: *skipCheck,
 		Args:      flag.Args(),
 	})
+
 	_, err = stripr.Run()
 
 	if err != nil {
@@ -36,4 +34,6 @@ func main() {
 			utils.Terminate(&types.CustomError{Message: fmt.Sprintf("An error occurred: %s", err.Error())})
 		}
 	}
+
+	os.Exit(0)
 }

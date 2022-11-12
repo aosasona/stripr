@@ -1,4 +1,4 @@
-package stripr
+package main
 
 import (
 	"fmt"
@@ -16,17 +16,17 @@ type Stripr struct {
 	Scanner   *Scanner
 }
 
-func CreateCMD(target *string, opts Stripr) (*Stripr, error) {
+func CreateStriprInstance(target *string, opts Stripr) (Stripr, error) {
 	scanner := Scanner{}
-	_, err := scanner.New(target)
+	s, err := scanner.New(target)
 	if err != nil {
-		return nil, err
+		return Stripr{}, err
 	}
-	return &Stripr{
+	return Stripr{
 		Target:    *target,
 		ShowStats: opts.ShowStats,
 		SkipCheck: opts.SkipCheck,
-		Scanner:   &scanner,
+		Scanner:   s,
 		Args:      opts.Args,
 	}, nil
 }

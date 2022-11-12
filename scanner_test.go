@@ -1,4 +1,4 @@
-package stripr
+package main
 
 import (
 	"reflect"
@@ -7,14 +7,18 @@ import (
 	"github.com/aosasona/stripr/types"
 )
 
+func CreateScannerInstance() *Scanner {
+	dirPath := "./example"
+	scanner := Scanner{}
+	s, _ := scanner.New(&dirPath)
+
+	return s
+}
+
 func TestScanner_CheckIfFileIgnored(t *testing.T) {
 	type args struct {
 		path string
 	}
-
-	dirPath := "./example"
-	scanner := Scanner{}
-	s, _ := scanner.New(&dirPath)
 
 	tests := []struct {
 		name string
@@ -24,7 +28,7 @@ func TestScanner_CheckIfFileIgnored(t *testing.T) {
 	}{
 		{
 			name: "file is ignored",
-			s:    *s,
+			s:    *CreateScannerInstance(),
 			args: args{path: "./example/read.js"},
 			want: true,
 		},
@@ -51,7 +55,11 @@ func TestScanner_CountDirFiles(t *testing.T) {
 		want    int
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "count files",
+			s:    *CreateScannerInstance(),
+			want: 4,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -78,7 +86,13 @@ func TestScanner_GetComments(t *testing.T) {
 		want    [][]int
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name:    "get comments",
+			s:       *CreateScannerInstance(),
+			args:    args{file: "./example/server.js"},
+			want:    [][]int{{0, 54}, {121, 147}, {217, 252}, {334, 393}},
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -94,30 +108,17 @@ func TestScanner_GetComments(t *testing.T) {
 	}
 }
 
-func TestScanner_Init(t *testing.T) {
-	tests := []struct {
-		name    string
-		s       Scanner
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if err := tt.s.Init(); (err != nil) != tt.wantErr {
-				t.Errorf("Init() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
-}
-
 func TestScanner_LoadConfig(t *testing.T) {
 	tests := []struct {
 		name    string
 		s       Scanner
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name:    "load config",
+			s:       *CreateScannerInstance(),
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
