@@ -11,7 +11,10 @@ Stripr can find and remove those nasty (debug) comments you left in your code, b
 
 ## Installation
 
-Stripr has been written in Golang which is a compiled language, so you will need to install the Golang compiler to build the binary or you can download the pre-built binaries from [this link](https://github.com/aosasona/stripr/assets/stripr-multiplatform.zip) (Linux, Windows, MacOS) and [extract them to your PATH](https://zwbetz.com/how-to-add-a-binary-to-your-path-on-macos-linux-windows/).
+### Using Homebrew
+
+### Manual Installation
+Stripr has been written in Golang which is a compiled language, so you will need to install the Golang compiler to build the binary or you can download the pre-built binaries from [this link](https://github.com/aosasona/stripr/releases/tag/v0.1.2) (Linux, Windows, macOS) and [extract them to your PATH](https://zwbetz.com/how-to-add-a-binary-to-your-path-on-macos-linux-windows/).
 
 If you would like to build the binary yourself, you can do so by running the following command:
 
@@ -31,7 +34,7 @@ The `build-release` will build the binary for your current OS and architecture a
 make build-all
 ```
 
-You could tinker with the Makefile to build for other platforms but I have not tested it outside Unix at the moment, let me know if you have any issues.
+You could tinker with the Makefile to build for other platforms, but I have not tested it outside Unix at the moment, let me know if you have any issues.
 
 
 
@@ -66,17 +69,14 @@ stripr -target=./example -skip-check -show-stats strip
 *Create a config file in the current directory*
 
 
-- `scan`		
+- `scan`	
 *Scan the directory for comments*
 
 
-- `strip`		
+- `strip` | `clean`		
 *Remove comments from the directory (-skip-check to prevent asking for confirmation; use with caution)*
 `help`
 *Show the help message*
 
 ## Contributing
 You can contribute to this project by opening an issue or a pull request, I will try to respond as soon as possible. This was a fun little project to work on to learn Golang and I hope you find it useful at some point.
-
-## TODO
-- [ ] Add more tests to increase coverage (we don't want to break anything now, do we?) 

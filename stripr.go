@@ -52,6 +52,7 @@ func (s *Stripr) Run() (*Stripr, error) {
 		err = s.ScanTarget()
 		break
 	case "strip":
+	case "clean":
 		err = s.CleanTarget()
 		break
 	case "help":
