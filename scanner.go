@@ -44,7 +44,7 @@ func (s *Scanner) Init() error {
 	}
 
 	configContent := []byte(`{
-	"ignore": ["node_modules", "tests", "vendor", "dist", "build"],
+	"ignore": ["node_modules", "tests", "vendor", "dist", "build", ".dockerignore", ".gitignore", ".env", "yarn.lock", "package.json", "package-lock.json", "composer.json", "composer.lock", "Dockerfile"],
 	"showStats": true,
 	"skipCheck": true
 }`)

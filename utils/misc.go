@@ -40,3 +40,12 @@ func RemoveDuplicates(elements []interface{}) []interface{} {
 	}
 	return result
 }
+
+func FilterErrorAndTerminate(err error) {
+	switch err.(type) {
+	case *types.CustomError:
+		Terminate(err)
+	default:
+		Terminate(&types.CustomError{Message: fmt.Sprintf("An error occurred: %s", err.Error())})
+	}
+}

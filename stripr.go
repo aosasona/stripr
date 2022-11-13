@@ -8,6 +8,8 @@ import (
 	"github.com/aosasona/stripr/utils"
 )
 
+const VERSION = 0.1
+
 type Stripr struct {
 	Target    string
 	Args      []string
@@ -16,29 +18,31 @@ type Stripr struct {
 	Scanner   *Scanner
 }
 
-func CreateStriprInstance(target *string, opts Stripr) (Stripr, error) {
-	scanner := Scanner{}
-	s, err := scanner.New(target)
+func (s *Stripr) New(target *string, opts Stripr) (*Stripr, error) {
+	scanner := new(Scanner)
+	sc, err := scanner.New(target)
 	if err != nil {
-		return Stripr{}, err
+		return &Stripr{}, err
 	}
-	return Stripr{
-		Target:    *target,
-		ShowStats: opts.ShowStats,
-		SkipCheck: opts.SkipCheck,
-		Scanner:   s,
-		Args:      opts.Args,
-	}, nil
+
+	s.Target = *target
+	s.ShowStats = opts.ShowStats
+	s.SkipCheck = opts.SkipCheck
+	s.Args = opts.Args
+	s.Scanner = sc
+
+	return s, nil
 }
 
 func (s *Stripr) Run() (*Stripr, error) {
+	var err error
+
 	if len(s.Args) < 1 {
 		s.ShowUsage()
 		return s, nil
 	}
 
 	mainCmd := s.Args[0]
-	var err error
 
 	switch mainCmd {
 	case "init":
@@ -53,6 +57,10 @@ func (s *Stripr) Run() (*Stripr, error) {
 	case "help":
 		s.ShowUsage()
 		break
+	case "version":
+	case "v":
+		s.ShowVersion()
+		break
 	default:
 		return s, &types.CustomError{Message: fmt.Sprintf("Unknown command: %s", mainCmd)}
 	}
@@ -62,6 +70,11 @@ func (s *Stripr) Run() (*Stripr, error) {
 	}
 
 	return s, nil
+}
+
+func (s *Stripr) ShowVersion() {
+	ver := fmt.Sprintf("You're currently running Stripr version %.1f", VERSION)
+	fmt.Println(ver)
 }
 
 func (s *Stripr) ShowUsage() {
@@ -83,6 +96,8 @@ func (s *Stripr) ShowUsage() {
 				Remove comments from the directory (-skip-check to prevent asking for confirmation; use with caution)
 		help
 				Show this help message
+		version | v
+				Show current version
 
 	You can optionally using a config file to set some options on a per-project basis.
 `

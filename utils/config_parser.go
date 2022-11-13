@@ -42,7 +42,7 @@ func ReadConfig(root string) (map[string]interface{}, error) {
 	}
 	path, err := CheckConfigExists(configRoot)
 	if err != nil {
-		return nil, &types.CustomError{Message: "Config file not found"}
+		return nil, nil
 	}
 
 	config, err := os.ReadFile(path)

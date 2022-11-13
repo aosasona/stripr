@@ -3,9 +3,12 @@ package main
 import (
 	"reflect"
 	"testing"
+
+	"github.com/aosasona/stripr/types"
 )
 
 func TestCreateCMD(t *testing.T) {
+	stripr := new(Stripr)
 	type args struct {
 		target *string
 		opts   Stripr
@@ -16,77 +19,36 @@ func TestCreateCMD(t *testing.T) {
 		want    *Stripr
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Test CreateCMD",
+			args: args{
+				target: &[]string{"./example"}[0],
+				opts: Stripr{
+					Args:      []string{},
+					ShowStats: false,
+					SkipCheck: false,
+				},
+			},
+			want: &Stripr{
+				Target:    "./example",
+				Args:      []string{},
+				ShowStats: false,
+				SkipCheck: false,
+				Scanner:   &Scanner{},
+			},
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := CreateStriprInstance(tt.args.target, tt.args.opts)
+			got, err := stripr.New(tt.args.target, tt.args.opts)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("CreateCMD() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
+			if !reflect.TypeOf(got).AssignableTo(reflect.TypeOf(tt.want)) || !reflect.TypeOf(tt.want.Scanner).AssignableTo(reflect.TypeOf(got.Scanner)) {
 				t.Errorf("CreateCMD() got = %v, want %v", got, tt.want)
 			}
-		})
-	}
-}
-
-func TestStripr_CleanTarget(t *testing.T) {
-	type fields struct {
-		Target    string
-		Args      []string
-		ShowStats bool
-		SkipCheck bool
-		Scanner   *Scanner
-	}
-	tests := []struct {
-		name    string
-		fields  fields
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			s := &Stripr{
-				Target:    tt.fields.Target,
-				Args:      tt.fields.Args,
-				ShowStats: tt.fields.ShowStats,
-				SkipCheck: tt.fields.SkipCheck,
-				Scanner:   tt.fields.Scanner,
-			}
-			if err := s.CleanTarget(); (err != nil) != tt.wantErr {
-				t.Errorf("CleanTarget() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
-}
-
-func TestStripr_CreateConfig(t *testing.T) {
-	type fields struct {
-		Target    string
-		Args      []string
-		ShowStats bool
-		SkipCheck bool
-		Scanner   *Scanner
-	}
-	tests := []struct {
-		name   string
-		fields fields
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			s := &Stripr{
-				Target:    tt.fields.Target,
-				Args:      tt.fields.Args,
-				ShowStats: tt.fields.ShowStats,
-				SkipCheck: tt.fields.SkipCheck,
-				Scanner:   tt.fields.Scanner,
-			}
-			s.CreateConfig()
 		})
 	}
 }
@@ -105,7 +67,27 @@ func TestStripr_Run(t *testing.T) {
 		want    *Stripr
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "run stripr",
+			fields: fields{
+				Target:    "./example",
+				Args:      []string{},
+				ShowStats: false,
+				SkipCheck: false,
+				Scanner: &Scanner{
+					Path:    "./example",
+					DirType: types.DIRECTORY,
+				},
+			},
+			want: &Stripr{
+				Target:    "./example",
+				Args:      []string{},
+				ShowStats: false,
+				SkipCheck: false,
+				Scanner:   &Scanner{},
+			},
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -121,7 +103,7 @@ func TestStripr_Run(t *testing.T) {
 				t.Errorf("Run() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
+			if !reflect.DeepEqual(got.Target, tt.want.Target) {
 				t.Errorf("Run() got = %v, want %v", got, tt.want)
 			}
 		})
@@ -141,7 +123,19 @@ func TestStripr_ScanTarget(t *testing.T) {
 		fields  fields
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "scan target",
+			fields: fields{
+				Target:    "./example",
+				Args:      []string{},
+				ShowStats: false,
+				SkipCheck: false,
+				Scanner: &Scanner{
+					Path:    "./example",
+					DirType: types.DIRECTORY,
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -155,34 +149,6 @@ func TestStripr_ScanTarget(t *testing.T) {
 			if err := s.ScanTarget(); (err != nil) != tt.wantErr {
 				t.Errorf("ScanTarget() error = %v, wantErr %v", err, tt.wantErr)
 			}
-		})
-	}
-}
-
-func TestStripr_ShowUsage(t *testing.T) {
-	type fields struct {
-		Target    string
-		Args      []string
-		ShowStats bool
-		SkipCheck bool
-		Scanner   *Scanner
-	}
-	tests := []struct {
-		name   string
-		fields fields
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			s := &Stripr{
-				Target:    tt.fields.Target,
-				Args:      tt.fields.Args,
-				ShowStats: tt.fields.ShowStats,
-				SkipCheck: tt.fields.SkipCheck,
-				Scanner:   tt.fields.Scanner,
-			}
-			s.ShowUsage()
 		})
 	}
 }

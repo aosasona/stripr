@@ -38,7 +38,7 @@ func TestReadConfig(t *testing.T) {
 		{"attempt to read config file",
 			map[string]interface{}{
 				"ignore": []interface{}{
-					"node_modules", "tests", "vendor", "dist", "build", "read.js",
+					"node_modules", "tests", "vendor", "dist", "build", ".dockerignore", ".gitignore", ".env", "yarn.lock", "package.json", "package-lock.json", "composer.json", "composer.lock", "Dockerfile",
 				},
 				"showStats": true,
 				"skipCheck": true,
