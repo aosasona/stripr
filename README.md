@@ -1,5 +1,6 @@
 # Stripr CLI
-![build status](https://github.com/aosasona/stripr/actions/workflows/main.yml/badge.svg)
+![build & test](https://github.com/aosasona/stripr/actions/workflows/main.yml/badge.svg)
+![release](https://github.com/aosasona/stripr/actions/workflows/release.yml/badge.svg)
 
 ![stripr](./assets/stripr.png)
 
@@ -14,7 +15,7 @@ Stripr can find and remove those nasty (debug) comments you left in your code, b
 ### Using Homebrew
 
 ### Manual Installation
-Stripr has been written in Golang which is a compiled language, so you will need to install the Golang compiler to build the binary or you can download the pre-built binaries from [this link](https://github.com/aosasona/stripr/releases/tag/v0.1.2) (Linux, Windows, macOS) and [extract them to your PATH](https://zwbetz.com/how-to-add-a-binary-to-your-path-on-macos-linux-windows/).
+Stripr has been written in Golang which is a compiled language, so you will need to install the Golang compiler to build the binary or you can get a pre-built binary for your machine from [this link](https://github.com/aosasona/stripr/releases) (Linux, Windows, macOS) and [extract them to your PATH](https://zwbetz.com/how-to-add-a-binary-to-your-path-on-macos-linux-windows/).
 
 If you would like to build the binary yourself, you can do so by running the following command:
 

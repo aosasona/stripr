@@ -3,3 +3,4 @@ build
 release
 .idea
 dist/
+github_token
