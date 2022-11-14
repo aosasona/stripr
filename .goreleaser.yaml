@@ -1,11 +1,11 @@
 env_files:
-  github_token: ./github_token
+  github_token: ./github_token # for local builds
 brews:
   - name: stripr
-    homepage: https://github.com/aosasona/stripr
+    homepage: https://github.com/aosasona/homebrew-pkgs
     tap:
       owner: aosasona
-      name: stripr
+      name: homebrew-pkgs
 builds:
   - env:
       - CGO_ENABLED=0
@@ -26,9 +26,5 @@ snapshot:
   name_template: "{{ incpatch .Version }}-next"
 changelog:
   sort: asc
-  filters:
-    exclude:
-      - '^docs:'
-      - '^test:'
 
 # vim: set ts=2 sw=2 tw=0 fo=cnqoj
