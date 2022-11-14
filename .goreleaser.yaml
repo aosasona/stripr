@@ -6,6 +6,7 @@ brews:
     tap:
       owner: aosasona
       name: homebrew-pkgs
+      token: ${{ .Env.GITHUB_TOKEN }}
 builds:
   - env:
       - CGO_ENABLED=0
