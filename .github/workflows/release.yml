@@ -5,8 +5,9 @@ on:
       - '*'
 
 permissions:
-  contents: write
-  packages: write
+  contents: read/write
+  packages: read/write  
+
 
 jobs:
   release:
@@ -26,4 +27,4 @@ jobs:
           version: latest
           args: release --rm-dist
         env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

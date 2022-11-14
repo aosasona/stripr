@@ -13,6 +13,16 @@ Stripr can find and remove those nasty (debug) comments you left in your code, b
 ## Installation
 
 ### Using Homebrew
+You can install stripr using Homebrew if you're on macOS or Linux. You can install Homebrew [here](https://brew.sh/).
+
+```bash
+brew tap aosasona/stripr
+```
+This will add the tap to your Homebrew installation so you can install the latest version of Stripr using the following command:
+```bash
+brew install stripr
+```
+
 
 ### Manual Installation
 Stripr has been written in Golang which is a compiled language, so you will need to install the Golang compiler to build the binary or you can get a pre-built binary for your machine from [this link](https://github.com/aosasona/stripr/releases) (Linux, Windows, macOS) and [extract them to your PATH](https://zwbetz.com/how-to-add-a-binary-to-your-path-on-macos-linux-windows/).
