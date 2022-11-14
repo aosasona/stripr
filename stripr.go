@@ -51,15 +51,13 @@ func (s *Stripr) Run() (*Stripr, error) {
 	case "scan":
 		err = s.ScanTarget()
 		break
-	case "strip":
-	case "clean":
+	case "strip", "clean":
 		err = s.CleanTarget()
 		break
 	case "help":
 		s.ShowUsage()
 		break
-	case "version":
-	case "v":
+	case "version", "v":
 		s.ShowVersion()
 		break
 	default:
