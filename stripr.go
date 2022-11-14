@@ -58,8 +58,7 @@ func (s *Stripr) Run() (*Stripr, error) {
 	case "help":
 		s.ShowUsage()
 		break
-	case "version":
-	case "v":
+	case "version", "v":
 		s.ShowVersion()
 		break
 	default:
